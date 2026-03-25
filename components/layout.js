@@ -59,6 +59,8 @@ export default ({
   pkg,
   root = ''
   }: Props) => {
+  const currentYear = new Date().getFullYear()
+
   return (
     <div className={className}>
 
@@ -97,7 +99,7 @@ export default ({
 
       {pkg.author
         ? <footer>
-            © 2017 <a href={pkg.author.url}>{pkg.author.name || pkg.name}</a>
+            © {currentYear} <a href={pkg.author.url}>{pkg.author.name || pkg.name}</a>
             . All rights reserved.
         </footer>
         : null}
