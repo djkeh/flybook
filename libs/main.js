@@ -28,7 +28,9 @@ type Props = {
   /* font - provided by google font only */
   font?: string,
   /* syntax highlight - provided by highlight.js */
-  codeStyle?: string
+  codeStyle?: string,
+  /* prevent search engine indexing */
+  noindex?: boolean
 }
 
 let pkg = {
@@ -55,7 +57,8 @@ const Html = (
   routes: any,
   theme?: string,
   font?: string,
-  codeStyle?: string
+  codeStyle?: string,
+  noindex?: boolean
 ) => {
   return _document({
     title,
@@ -63,6 +66,7 @@ const Html = (
     theme,
     font,
     codeStyle,
+    noindex,
     body: renderToStaticMarkup(createElement(App, { title, contents, toc: routes, pkg, root }))
   })
 }
@@ -73,7 +77,8 @@ const makeIndexPage = (
   routes: any,
   theme?: string,
   font?: string,
-  codeStyle?: string
+  codeStyle?: string,
+  noindex?: boolean
 ) => {
   let contents: string
   let html: string
@@ -94,13 +99,13 @@ const makeIndexPage = (
     contents = loadIndex(docDir)
   }
 
-  html = Html(pkg.name, contents, '', routes, theme, font, codeStyle)
+  html = Html(pkg.name, contents, '', routes, theme, font, codeStyle, noindex)
 
   /* gen new files */
   writeFileSync(join(outDir, 'index.html'), html, { encoding: 'utf8' })
 }
 
-export default ({ docDir, outDir, silent, prod, theme, font, codeStyle }: Props) => {
+export default ({ docDir, outDir, silent, prod, theme, font, codeStyle, noindex }: Props) => {
   const routes: { [key: string]: any } = routeTable(docDir) || {}
 
   // if not production mode, homepage is '/' path
@@ -115,7 +120,7 @@ export default ({ docDir, outDir, silent, prod, theme, font, codeStyle }: Props)
   mkdirp.sync(outDir)
 
   // make index page
-  makeIndexPage(docDir, outDir, routes, theme, font, codeStyle)
+  makeIndexPage(docDir, outDir, routes, theme, font, codeStyle, noindex)
 
   Object.keys(routes).forEach(key => {
     const subRoutes = routes[key] || {}
@@ -129,7 +134,7 @@ export default ({ docDir, outDir, silent, prod, theme, font, codeStyle }: Props)
       let relativePath = relative(outputDir, outDir)
       relativePath = relativePath === '' ? '.' : relativePath
 
-      let html = Html(title, contents, relativePath + sep, routes, theme, font, codeStyle)
+      let html = Html(title, contents, relativePath + sep, routes, theme, font, codeStyle, noindex)
 
       /* mkdir output dir */
       mkdirp.sync(outputDir)
@@ -148,6 +153,11 @@ export default ({ docDir, outDir, silent, prod, theme, font, codeStyle }: Props)
   copy(join(__dirname, '..', '..', 'static'), join(outDir, 'static')).then(result => {
     console.log(`> FlyBook was generated at ${outDir}`)
   })
+
+  /* generate robots.txt when noindex option is set */
+  if (noindex) {
+    writeFileSync(join(outDir, 'robots.txt'), 'User-agent: *\nDisallow: /\n', { encoding: 'utf8' })
+  }
 
   /* copy assets which is used in docs */
   const files: string[] = glob.sync(

@@ -26,10 +26,11 @@ const argv = parseArgs(process.argv.slice(2), {
     v: 'version',
     p: 'prod'
   },
-  boolean: ['h', 'p', 's'],
+  boolean: ['h', 'p', 's', 'noindex'],
   default: {
     s: false,
-    o: null
+    o: null,
+    noindex: false
   }
 })
 
@@ -59,6 +60,7 @@ if (argv.help || !argv._[0]) {
       -t, --theme   - set the theme
       --font        - font family (default to 'Rubik|Unica+One') google fonts
       --codeStyle   - code syntax highlight style (default to 'solarized-dark') hightlight.js
+      --noindex     - insert <meta name="robots" content="noindex" /> to prevent search engine indexing
   `
   )
   process.exit(0)
@@ -81,6 +83,7 @@ const gen = () => {
     theme: argv.theme,
     font: argv.font,
     codeStyle: argv.codeStyle,
+    noindex: argv.noindex,
     outDir: normalize(argv.outdir ? resolve(argv.outdir) : resolve(dir, '..', 'out_flybook'))
   }
 

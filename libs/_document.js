@@ -12,7 +12,8 @@ type Props = {
   root: string,
   theme?: string,
   font?: string,
-  codeStyle?: string
+  codeStyle?: string,
+  noindex?: boolean
 }
 
 export default ({
@@ -21,7 +22,8 @@ export default ({
   root = '',
   theme = 'light',
   font = 'Rubik|Unica+One',
-  codeStyle = 'solarized-dark'
+  codeStyle = 'solarized-dark',
+  noindex = false
   }: Props) => {
   return `
 <!DOCTYPE html>
@@ -34,6 +36,7 @@ export default ({
       content=${defaultDescription}
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    ${noindex ? '<meta name="robots" content="noindex" />' : ''}
     <link
       href="//fonts.googleapis.com/css?family=${font}"
       rel="stylesheet"
